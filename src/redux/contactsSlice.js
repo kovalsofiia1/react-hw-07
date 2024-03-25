@@ -1,31 +1,55 @@
 import { createSlice } from "@reduxjs/toolkit";
-
-const STG_KEY = "CONTACTS";
-
-const getFromStorage = (key) => {
-  const contacts = localStorage.getItem(key);
-  return JSON.parse(contacts) ? JSON.parse(contacts): [];
-}
-
-// const writeToStorage = (key, contacts) => {
-//   localStorage.setItem(key, JSON.stringify(contacts))
-// }
-
+import { fetchContacts, addContact, deleteContact } from "./contactsOps";
 
 const contactsSlice = createSlice({
     name: "contacts",
-    initialState: {items: getFromStorage(STG_KEY) },
-    reducers: {
-        addContact(state, action) {
-            state.items.push(action.payload);
-        },
-        deleteContact(state, action) {
-             const index = state.items.findIndex(contact => contact.id === action.payload);
-             state.items.splice(index, 1);
-        },
+    initialState: {
+      items: [],
+      loading: false,
+      error: null
+    },
+    extraReducers: builder => {
+    builder
+      .addCase(fetchContacts.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(fetchContacts.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.items = action.payload;
+      })
+      .addCase(fetchContacts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(addContact.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(addContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.items.push(action.payload);
+      })
+      .addCase(addContact.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteContact.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(deleteContact.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        const index = state.items.findIndex(
+          contact => contact.id === action.payload.id
+        );
+        state.items.splice(index, 1);
+      })
+      .addCase(deleteContact.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 })
 
-export const { addContact, deleteContact } = contactsSlice.actions;
 export const contactsReducer = contactsSlice.reducer;
-export const selectContacts = (state) => state.contacts.items;

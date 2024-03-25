@@ -3,41 +3,28 @@ import ContactList from '../ContactList/ContactList';
 import SearchBox from '../SearchBox/SearchBox';
 import ContactForm from '../ContactForm/ContactForm';
 import 'modern-normalize';
-
-
-
+import { useDispatch, useSelector } from 'react-redux';
+import { useEffect } from 'react';
+import { fetchContacts } from '../../redux/contactsOps';
+import { selectContactsInfo} from '../../redux/selectors';
 
 export default function App() {
-  // const [filter, setFilter] = useState('');
-  // const [contacts, setContacts] = useState(getFromStorage(STG_KEY));
+  const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   writeToStorage(STG_KEY, contacts);
-  // }, [contacts]);
+  const { loading, error } = useSelector(selectContactsInfo);
 
-  // const handleAdd = (newContact) => {
-  //   setContacts([
-  //     ...contacts,
-  //     newContact
-  //   ])
-  // }
-
-  // const handleDelete = (id) => {
-  //   const newList = contacts.filter((contact) => contact.id !== id);
-  //   setContacts(newList)
-  // }
-
-  
-  //const filteredContacts = contacts.filter((contact) => { return contact.name.toLowerCase().includes(filter.toLowerCase())})
+  useEffect(() => {
+    dispatch(fetchContacts());
+  }, [dispatch]);
 
   return (
    <div className={css.container}>
       <h1>Phonebook</h1>
-      {/* <ContactForm onAdd = {handleAdd} />
-      <SearchBox value={ filter } onFilter={setFilter}/>
-      <ContactList contacts={filteredContacts} onDelete={handleDelete} /> */}
+      
       <ContactForm />
       <SearchBox />
+      {loading && <b>Loading tasks...</b>}
+      {error && <b>{error}</b>}
       <ContactList />
 
     </div>
